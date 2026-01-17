@@ -14,6 +14,7 @@ class SkillName(str, Enum):
 
     HELLO_WORLD = "hello_world"
     ANALYZE_AND_PLAN = "analyze_and_plan"
+    ANALYZE_EMAIL = "analyze_email"
 
 
 @dataclass(frozen=True, slots=True)

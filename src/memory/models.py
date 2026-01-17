@@ -10,6 +10,82 @@ from src.tools.models import HelloWorldRequest
 from src.engine.types import WorkflowStage
 
 
+class UrgencyLevel(str, Enum):
+    """Urgency classification for emails."""
+
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
+
+
+class SentimentLevel(str, Enum):
+    """Sentiment classification for emails."""
+
+    POSITIVE = "Positive"
+    NEUTRAL = "Neutral"
+    NEGATIVE = "Negative"
+
+
+class EmailAnalysisResult(BaseModel):
+    """Structured data extracted from email analysis."""
+
+    main_topic: str = Field(..., description="Short label defining the email subject")
+    business_category: str = Field(
+        ...,
+        description="Department assignment (Sales, HR, Tech Support, Accounting, etc.)",
+    )
+    contact_data: str = Field(
+        ..., description="Extracted email addresses or phone numbers"
+    )
+    urgency: UrgencyLevel = Field(
+        ..., description="Urgency assessment (Low/Medium/High)"
+    )
+    sentiment: SentimentLevel = Field(
+        ..., description="Emotional analysis (Positive/Neutral/Negative)"
+    )
+    summary: str = Field(..., description="One-sentence abstract of the problem")
+    event_date: datetime = Field(
+        default_factory=datetime.now, description="Date the message was received"
+    )
+    source_file: str = Field(..., description="Original email filename")
+
+
+class EmailProcessingState(BaseModel):
+    """Current state of email processing workflow."""
+
+    inbox_files: List[str] = Field(
+        default_factory=list, description="List of files found in inbox"
+    )
+    current_file_index: int = Field(
+        default=0, description="Index of currently processing file"
+    )
+    current_file_content: Optional[str] = Field(
+        default=None, description="Content of the currently loaded email"
+    )
+    current_analysis: Optional[EmailAnalysisResult] = Field(
+        default=None, description="Analysis result of current email"
+    )
+    processed_count: int = Field(
+        default=0, description="Number of emails processed in this cycle"
+    )
+
+    def has_more_files(self) -> bool:
+        """Check if there are more files to process."""
+        return self.current_file_index < len(self.inbox_files)
+
+    def get_current_file(self) -> Optional[str]:
+        """Get the current file path to process."""
+        if self.has_more_files():
+            return self.inbox_files[self.current_file_index]
+        return None
+
+    def advance_to_next_file(self) -> None:
+        """Move to the next file in the queue."""
+        self.current_file_index += 1
+        self.current_file_content = None
+        self.current_analysis = None
+
+
 class ConstitutionalMemory(BaseModel):
     """The "agent's DNA." Security and ethical principles that the agent MUST NOT break. Guardrails."""
 
@@ -19,6 +95,10 @@ class WorkingMemory(BaseModel):
 
     query_analysis: Optional[Any] = Field(
         default=None, description="Analysis and plan of the current query."
+    )
+    email_processing: EmailProcessingState = Field(
+        default_factory=EmailProcessingState,
+        description="Current email processing state",
     )
 
 

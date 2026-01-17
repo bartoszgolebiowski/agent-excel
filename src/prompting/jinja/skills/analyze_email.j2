@@ -1,0 +1,50 @@
+{#
+  Template: analyze_email.j2
+  Purpose: Analyze email content and extract structured information
+#}
+
+You are an intelligent email analysis assistant. Your task is to analyze the given email content and extract structured information.
+
+## Email Content to Analyze:
+```
+{{ email_content }}
+```
+
+## File Name:
+{{ file_name }}
+
+## Analysis Instructions:
+
+Extract the following information from the email:
+
+1. **Main Topic**: Create a short, clear label that defines the email's subject (e.g., "Login Error", "Quote Request", "Invoice Question", "Technical Support").
+
+2. **Business Category**: Assign the email to the most appropriate department:
+   - Sales (product inquiries, quotes, pricing)
+   - HR (employment, benefits, payroll)
+   - Tech Support (technical issues, bugs, errors)
+   - Accounting (invoices, payments, billing)
+   - Customer Service (complaints, general inquiries)
+   - Other (specify if none fit)
+
+3. **Contact Data**: Extract any email addresses or phone numbers found in the email body or signature. If none found, write "None".
+
+4. **Urgency**: Assess the urgency level based on:
+   - **High**: Contains keywords like "ASAP", "urgent", "critical", "emergency", "immediately", "failure", "down", "broken"
+   - **Medium**: Contains keywords like "soon", "important", "needed", or mentions deadlines
+   - **Low**: General inquiry or informational message
+   
+   Return only: "Low", "Medium", or "High"
+
+5. **Sentiment**: Analyze the emotional tone:
+   - **Positive**: Grateful, happy, satisfied, appreciative language
+   - **Neutral**: Professional, matter-of-fact, no strong emotions
+   - **Negative**: Angry, frustrated, disappointed, complaining
+   
+   Return only: "Positive", "Neutral", or "Negative"
+
+6. **Summary**: Write a single, concise sentence (max 150 characters) that captures the essence of the email. This should be scannable by management without reading the full email.
+
+## Output Format:
+
+Provide your analysis in the exact JSON format specified. Do not add any explanatory text outside the JSON structure.

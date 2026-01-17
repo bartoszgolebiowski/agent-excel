@@ -23,4 +23,30 @@ TRANSITIONS: Dict[WorkflowStage, Tuple[ActionType, Union[SkillName, ToolName], s
         SkillName.HELLO_WORLD,
         "Workflow completed successfully",
     ),
+    # Email processing workflow stages
+    WorkflowStage.CHECK_INBOX: (
+        ActionType.TOOL,
+        ToolName.CHECK_INBOX,
+        "Checking inbox folder for new emails",
+    ),
+    WorkflowStage.ANALYZE_EMAIL: (
+        ActionType.LLM_SKILL,
+        SkillName.ANALYZE_EMAIL,
+        "Analyzing email content and extracting structured data",
+    ),
+    WorkflowStage.SAVE_TO_EXCEL: (
+        ActionType.TOOL,
+        ToolName.SAVE_TO_EXCEL,
+        "Saving email analysis to Excel report",
+    ),
+    WorkflowStage.ARCHIVE_EMAIL: (
+        ActionType.TOOL,
+        ToolName.ARCHIVE_EMAIL,
+        "Moving processed email to archive folder",
+    ),
+    WorkflowStage.CHECK_NEXT_EMAIL: (
+        ActionType.TOOL,
+        ToolName.CHECK_INBOX,
+        "Checking if there are more emails to process",
+    ),
 }

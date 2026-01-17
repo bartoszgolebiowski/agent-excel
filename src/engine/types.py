@@ -18,4 +18,10 @@ class WorkflowStage(str, Enum):
     INITIAL = "INITIAL"
     COORDINATOR = "COORDINATOR"
     COMPLETED = "COMPLETED"
-    # Add other stages as needed
+
+    # Email processing workflow stages
+    CHECK_INBOX = "CHECK_INBOX"
+    ANALYZE_EMAIL = "ANALYZE_EMAIL"
+    SAVE_TO_EXCEL = "SAVE_TO_EXCEL"
+    ARCHIVE_EMAIL = "ARCHIVE_EMAIL"
+    CHECK_NEXT_EMAIL = "CHECK_NEXT_EMAIL"

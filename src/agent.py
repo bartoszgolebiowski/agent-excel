@@ -11,6 +11,7 @@ from src.memory.models import AgentState
 from src.memory.state_manager import update_state_from_tool
 from src.skills.base import SkillName
 from src.tools.hello_world import HelloWorldClient
+from src.tools.executor import ToolExecutor
 from src.tools.models import ToolName
 
 from src.engine import LLMExecutor, AgentActionCoordinator
@@ -51,11 +52,13 @@ class Agent:
         *,
         llm_executor: LLMExecutor,
         hello_world_client: HelloWorldClient,
+        tool_executor: ToolExecutor,
         config: Optional[AgentConfig] = None,
         coordinator: Optional[AgentActionCoordinator] = None,
     ) -> None:
         self._llm_executor = llm_executor
         self._hello_world_client = hello_world_client
+        self._tool_executor = tool_executor
         self._config = config or AgentConfig()
         self._coordinator = coordinator or AgentActionCoordinator()
         self._logger = get_agent_logger()
@@ -70,9 +73,11 @@ class Agent:
 
         llm_executor = LLMExecutor.from_env()
         hello_world_client = HelloWorldClient()
+        tool_executor = ToolExecutor.from_env()
         return cls(
             llm_executor=llm_executor,
             hello_world_client=hello_world_client,
+            tool_executor=tool_executor,
             config=agent_config,
         )
 
@@ -120,7 +125,8 @@ class Agent:
         return AgentResult(state=state, steps_executed=steps_executed)
 
     def _build_prompt_context(self, state: AgentState) -> Dict[str, object]:
-        return {
+        """Build context for LLM prompt rendering."""
+        context = {
             "state": state,
             "core": state.core,
             "semantic": state.semantic,
@@ -131,6 +137,33 @@ class Agent:
             "resource": state.resource,
         }
 
+        # Add email-specific context if in email analysis stage
+        if state.workflow.current_stage.value == "ANALYZE_EMAIL":
+            # Load email content if not already loaded
+            if not state.working.email_processing.current_file_content:
+                current_file = state.working.email_processing.get_current_file()
+                if current_file:
+                    from src.tools.models import ReadEmailRequest
+                    from src.tools.email_tools import read_email
+
+                    request = ReadEmailRequest(file_path=current_file)
+                    email_response = read_email(request)
+                    context["email_content"] = email_response.content
+                    context["file_name"] = email_response.file_name
+                else:
+                    context["email_content"] = ""
+                    context["file_name"] = ""
+            else:
+                current_file = state.working.email_processing.get_current_file()
+                context["email_content"] = (
+                    state.working.email_processing.current_file_content
+                )
+                context["file_name"] = (
+                    current_file.split("/")[-1] if current_file else ""
+                )
+
+        return context
+
     def _llm_call(self, skill_name: SkillName, context: Dict[str, object]) -> BaseModel:
         try:
             return self._llm_executor.execute(skill_name, context)
@@ -140,9 +173,4 @@ class Agent:
             ) from exc
 
     def _execute_tool(self, state: AgentState, tool_type: ToolName) -> BaseModel:
-        if tool_type == ToolName.HELLO_WORLD:
-            request_payload = state.get_hello_world_request()
-            response = self._hello_world_client.call(request_payload)
-            return response
-        else:
-            raise RuntimeError(f"Unknown tool type requested: {tool_type}")
+        return self._tool_executor.execute(tool_type, state)

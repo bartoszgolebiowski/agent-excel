@@ -1,0 +1,10 @@
+Subject: Invoice Discrepancy
+
+Hello Accounting,
+
+I noticed an error on invoice #12345. We were charged $5,000 but the quote was for $4,500. Can you please review and send a corrected invoice?
+
+Thank you,
+Lisa Martinez
+Finance Manager
+lisa.m@clientco.com

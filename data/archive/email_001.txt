@@ -1,0 +1,13 @@
+Subject: URGENT: System Down - Login Failures
+
+Hello IT Support,
+
+Our entire team is unable to log into the system. This is CRITICAL as we have a client presentation in 30 minutes. The error message says "Authentication Service Unavailable".
+
+Please fix this ASAP!
+
+Thanks,
+Sarah Johnson
+Head of Sales
+sarah.johnson@company.com
++1-555-0123
