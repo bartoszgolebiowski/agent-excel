@@ -27,17 +27,16 @@ A Skill is defined by the `SkillDefinition` class (`definitions.py`) and consist
 
 To add a new capability:
 
-1.  **Define Output Model**: Create a Pydantic model in `skills/models.py`.
-    - Must include `ai_response: str` for the conversational part.
-    - Must include structured fields for the data you want to extract.
-2.  **Create Template**: Add a `.j2` file in `prompting/jinja/skills/`.
-    - Inherit from/include memory templates.
-    - Be explicit about the task.
-3.  **Register Skill**: Add a `SkillDefinition` to `skills/definitions.py`.
-    - Add the name to `SkillName` enum (`domain.py`).
-    - Register in `ALL_SKILLS` list.
-4.  **Handle State**: Create a handler in `memory/state_manager.py` to process the output.
-5.  **Add Routing**: Update `Coordinator.next_action` to trigger this skill.
+1.  **Define Output Model**: Create a Pydantic model in `src/skills/models.py`.
+    - Focus on the data required by the `state_manager` to advance the workflow.
+    - Fields should be well-documented using Pydantic `Field`.
+2.  **Create Template**: Add a `.j2` file in `src/prompting/jinja/skills/`.
+    - Use `{% include %}` for memory partials.
+3.  **Register Skill**:
+    - Add the name to `SkillName` enum in `src/skills/base.py`.
+    - Create a `SkillDefinition` in `src/skills/definitions.py` and add it to `ALL_SKILLS`.
+4.  **Handle State**: Create a handler in `src/memory/state_manager.py` and register it in `_SKILL_HANDLERS`.
+5.  **Add Routing**: Add an entry to the `TRANSITIONS` map in `src/engine/workflow_transitions.py`.
 
 ## Common Mistakes to Avoid
 

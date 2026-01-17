@@ -1,5 +1,5 @@
 ---
-applyTo: "src/prompting/**/*.py"
+applyTo: "src/prompting/**/*.j2"
 ---
 
 # Templates Component Instructions
